@@ -1,63 +1,93 @@
-# Excalidraw Diagram Skill
+# Excalidraw Diagram Skill (Cursor)
 
-A coding agent skill that generates beautiful and practical Excalidraw diagrams from natural language descriptions. Not just boxes-and-arrows - diagrams that **argue visually**.
+A [Cursor Agent Skill](https://cursor.com/docs/skills.md) that generates Excalidraw diagrams from natural language—not generic box grids, but layouts where **structure carries the argument**. Includes a Playwright render loop so the agent can inspect PNG output and fix layout issues before delivery.
 
-Compatible with any coding agent that supports skills. For agents that read from `.claude/skills/` (like [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [OpenCode](https://github.com/nicepkg/OpenCode)), just drop it in and go.
+Based on [excalidraw-diagram-skill-cursor](https://github.com/konashevich/excalidraw-diagram-skill-cursor) (Agent Skills / [agentskills.io](https://agentskills.io) compatible).
 
-## What Makes This Different
+## What It Does
 
-- **Diagrams that argue, not display.** Every shape/group of shapes mirrors the concept it represents — fan-outs for one-to-many, timelines for sequences, convergence for aggregation. No uniform card grids.
-- **Evidence artifacts.** As an example, technical diagrams include real code snippets and actual JSON payloads.
-- **Built-in visual validation.** A Playwright-based render pipeline lets the agent see its own output, catch layout issues (overlapping text, misaligned arrows, unbalanced spacing), and fix them in a loop before delivering.
-- **Brand-customizable.** All colors and brand styles live in a single file (`references/color-palette.md`). Swap it out and every diagram follows your palette.
+- **Visual arguments** — fan-out, timelines, convergence, trees; varied patterns per concept  
+- **Evidence artifacts** — real code, JSON, event names on technical diagrams  
+- **Render validation** — `.excalidraw` → PNG via headless Chromium; agent reviews and iterates  
+- **Brand palette** — edit one file: `references/color-palette.md`  
 
-## Installation
+## Install (Cursor)
 
-Clone or download this repo, then copy it into your project's `.claude/skills/` directory:
+### Option A: Use this repo in your project
 
-```bash
-git clone https://github.com/coleam00/excalidraw-diagram-skill.git
-cp -r excalidraw-diagram-skill .claude/skills/excalidraw-diagram
+Clone into your project (or add as submodule). Cursor auto-discovers:
+
+```text
+your-project/
+└── .cursor/skills/excalidraw-diagram/
+    ├── SKILL.md
+    ├── references/
+    └── scripts/
 ```
 
-## Setup
+Restart Cursor or open **Settings → Rules → Agent Decides** to confirm `excalidraw-diagram` appears.
 
-The skill includes a render pipeline that lets the agent visually validate its diagrams. There are two ways to set it up:
-
-**Option A: Ask your coding agent (easiest)**
-
-Just tell your agent: *"Set up the Excalidraw diagram skill renderer by following the instructions in SKILL.md."* It will run the commands for you.
-
-**Option B: Manual**
+### Option B: User-level (all projects)
 
 ```bash
-cd .claude/skills/excalidraw-diagram/references
+git clone https://github.com/konashevich/excalidraw-diagram-skill-cursor.git
+cp -r excalidraw-diagram-skill-cursor/.cursor/skills/excalidraw-diagram ~/.cursor/skills/excalidraw-diagram
+```
+
+Also supported: `~/.agents/skills/excalidraw-diagram/`
+
+### Option C: GitHub remote rule
+
+**Settings → Rules → Project Rules → Add Rule → Remote Rule (Github)** — paste this repository URL.
+
+## Renderer setup
+
+**Ask the agent:** *"Set up the excalidraw-diagram skill renderer."*
+
+**Or manually:**
+
+```bash
+cd .cursor/skills/excalidraw-diagram/scripts   # or ~/.cursor/skills/excalidraw-diagram/scripts
 uv sync
 uv run playwright install chromium
 ```
 
+Requires Python ≥3.11 and [uv](https://github.com/astral-sh/uv).
+
 ## Usage
 
-Ask your coding agent to create a diagram:
+In Cursor Agent chat:
 
-> "Create an Excalidraw diagram showing how the AG-UI protocol streams events from an AI agent to a frontend UI"
+> Create an Excalidraw diagram showing how webhooks flow from a payment provider to our order service and database.
 
-The skill handles the rest — concept mapping, layout, JSON generation, rendering, and visual validation.
+Or invoke explicitly: `/excalidraw-diagram`
 
-## Customize Colors
+The skill also surfaces automatically when working on `*.excalidraw` files (`paths` in frontmatter).
 
-Edit `references/color-palette.md` to match your brand. Everything else in the skill is universal design methodology.
+## Customize colors
 
-## File Structure
+Edit `.cursor/skills/excalidraw-diagram/references/color-palette.md`.
 
+## Layout
+
+```text
+.cursor/skills/excalidraw-diagram/
+├── SKILL.md                 # Workflow + render loop (read first)
+├── references/
+│   ├── color-palette.md     # Brand colors (edit for your style)
+│   ├── design-methodology.md
+│   ├── visual-patterns.md
+│   ├── large-diagrams.md
+│   ├── quality-checklist.md
+│   ├── element-templates.md
+│   └── json-schema.md
+└── scripts/
+    ├── render_excalidraw.py
+    ├── render_template.html
+    └── pyproject.toml
 ```
-excalidraw-diagram/
-  SKILL.md                          # Design methodology + workflow
-  references/
-    color-palette.md                # Brand colors (edit this to customize)
-    element-templates.md            # JSON templates for each element type
-    json-schema.md                  # Excalidraw JSON format reference
-    render_excalidraw.py            # Render .excalidraw to PNG
-    render_template.html            # Browser template for rendering
-    pyproject.toml                  # Python dependencies (playwright)
-```
+
+## Docs
+
+- [Cursor Agent Skills](https://cursor.com/docs/skills.md)  
+- [Agent Skills standard](https://agentskills.io)  
